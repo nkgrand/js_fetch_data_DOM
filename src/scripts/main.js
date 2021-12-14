@@ -1,21 +1,20 @@
 'use strict';
 
-const url = 'https://mate-academy.github.io/'
-            + 'phone-catalogue-static/api/phones.json';
+const BASE_URL = 'https://mate-academy.github.io/phone-catalogue-static';
 
-function getPhones() {
-  return fetch(url)
+function request(url) {
+  return fetch(`${BASE_URL}${url}`)
     .then(response => response.json());
 };
 
 function getPhonesDetail(phoneArray) {
-  const ul = document.createElement('ul');
+  const ol = document.createElement('ol');
 
   for (const phone of phoneArray) {
     const li = document.createElement('li');
 
     li.textContent = phone.name;
-    ul.append(li);
+    ol.append(li);
 
     li.addEventListener('click', () => {
       showPhoneDetails(phone);
@@ -31,7 +30,20 @@ function getPhonesDetail(phoneArray) {
     });
   }
 
-  document.body.append(ul);
+  document.body.prepend(ol);
+}
+
+function getIds(phoneArray) {
+  const ol = document.createElement('ol');
+
+  for (const phone of phoneArray) {
+    const li = document.createElement('li');
+
+    li.textContent = phone.id;
+    ol.append(li);
+  }
+
+  document.body.append(ol);
 }
 
 function showPhoneDetails(phone) {
@@ -42,18 +54,31 @@ function showPhoneDetails(phone) {
   }
 
   const div = document.createElement('div');
+  const img = document.createElement('img');
+  const p = document.createElement('p');
 
   div.classList.add('active');
-  div.innerText = phone.snippet;
-  document.body.append(div);
+  img.src = `${BASE_URL}/${phone.imageUrl}`;
+  div.append(img);
+  p.textContent = phone.snippet;
+
+  div.append(p);
+  document.body.prepend(div);
 }
 
 function logError(error) {
   setTimeout(() => {
     throw new Error(`Can't recieve data from server`, error);
-  }, 1000);
+  }, 5000);
 }
+
+const getPhones = () => request('/api/phones.json');
+const getPhonesIDs = () => request('/api/phones.json');
 
 getPhones()
   .then(getPhonesDetail)
+  .catch(logError);
+
+getPhonesIDs()
+  .then(getIds)
   .catch(logError);
